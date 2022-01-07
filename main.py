@@ -8,9 +8,15 @@ from spotipy.oauth2 import SpotifyClientCredentials
 class Song:
     """A Spotify song"""
 
-    def __init__(self, name, artist):
+    def __init__(self, name, artists: dict):
         self.name = name
-        self.artist = artist
+        self.artists = artists
+
+    def __str__(self):
+        string = f'"{self.name}" by {self.artists[0]}'
+        for artist in self.artists[1:]:
+            string += f", {artist}"
+        return string
 
 
 class User:
@@ -42,8 +48,9 @@ class Playlist:
 
     def initialise_data(self):
         for i in range(0, self.owner.number_of_playlists + 1, 50):
-            response = requests.get(f"https://api.spotify.com/v1/users/{self.owner.userid}/playlists?limit=50&offset={i}",
-                                    headers={"Authorization": f"Bearer {TOKEN}"})
+            response = requests.get(
+                f"https://api.spotify.com/v1/users/{self.owner.userid}/playlists?limit=50&offset={i}",
+                headers={"Authorization": f"Bearer {TOKEN}"})
             if response.status_code != 200:
                 print(response.text)
                 exit(-1)
@@ -69,8 +76,12 @@ class Playlist:
             songs = [x for x in songs_json if x["track"] is not None]
             for song in songs:
                 # TODO: add multiple artists
-                song = Song(song["track"]["name"], song["track"]["artists"][0]["name"])
-                self.songs.append(song)
+                song_name = song["track"]["name"]
+                song_artists = []
+                for artist in song["track"]["artists"]:
+                    artist_name = artist["name"]
+                    song_artists.append(artist_name)
+                self.songs.append(Song(song_name, song_artists))
 
 
 def authorize():
@@ -86,7 +97,7 @@ def find_common_songs(p1, p2):
     common_songs = []
     for song1 in p1.songs:
         for song2 in p2.songs:
-            if song2.name == song1.name and song2.artist == song1.artist:
+            if song2.name == song1.name and song2.artists == song1.artists:
                 common_songs.append(song1)
     return common_songs
 
@@ -106,4 +117,4 @@ if __name__ == '__main__':
 
     songs = find_common_songs(playlist1, playlist2)
     for s in songs:
-        print(s.name)
+        print(s)
