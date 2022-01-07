@@ -8,7 +8,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 class Song:
     """A Spotify song"""
 
-    def __init__(self, name, artists: dict):
+    def __init__(self, name, artists: list):
         self.name = name
         self.artists = artists
 
@@ -75,7 +75,6 @@ class Playlist:
             # filter out null songs sent by Spotify API
             songs = [x for x in songs_json if x["track"] is not None]
             for song in songs:
-                # TODO: add multiple artists
                 song_name = song["track"]["name"]
                 song_artists = []
                 for artist in song["track"]["artists"]:
