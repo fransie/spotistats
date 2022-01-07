@@ -59,7 +59,6 @@ class Playlist:
             print(f"No playlist with the name {self.name} found.")
             exit()
 
-
     def request_songs(self):
         for i in range(0, self.length + 1, 100):
             response = requests.get(
