@@ -1,7 +1,6 @@
 import requests
 import json
-
-TOKEN = ""
+from spotipy.oauth2 import SpotifyClientCredentials
 
 
 class Song:
@@ -26,7 +25,6 @@ class Playlist:
         response = requests.get(f"https://api.spotify.com/v1/users/{self.owner}/playlists",
                                 headers={"Authorization": f"Bearer {TOKEN}"})
         if response.status_code != 200:
-            # TODO: add automatic token support
             print(response.text)
             exit(-1)
         playlists_json = json.loads(response.text)
@@ -37,7 +35,7 @@ class Playlist:
         self.request_songs()
 
     def request_songs(self):
-        for i in range(0, self.length+1, 100):
+        for i in range(0, self.length + 1, 100):
             response = requests.get(
                 f"https://api.spotify.com/v1/playlists/{self.id}/tracks?limit=100&offset={i}",
                 headers={"Authorization": f"Bearer {TOKEN}"})
@@ -48,9 +46,26 @@ class Playlist:
                 self.songs.append(song)
 
 
+def authorize():
+    cred_file = open('credentials', 'r')
+    lines = cred_file.readlines()
+    credentials = [lines[1].strip("\n"), lines[3].strip("\n")]
+
+    client_credentials_manager = SpotifyClientCredentials(credentials[0], credentials[1])
+    return client_credentials_manager.get_access_token(False)
+
+
+def find_common_songs(p1, p2):
+    common_songs = []
+    for song1 in p1.songs:
+        for song2 in p2.songs:
+            if song2.name == song1.name and song2.artist == song1.artist:
+                common_songs.append(song1)
+    return common_songs
+
+
 if __name__ == '__main__':
-    token_file = open('token', 'r')
-    TOKEN = token_file.readline()
+    TOKEN = authorize()
 
     user1 = "USERNAME1"
     playlist1_name = "PLAYLIST1"
@@ -62,7 +77,6 @@ if __name__ == '__main__':
     playlist2 = Playlist(playlist2_name, user2)
     playlist2.initialise_data()
 
-    for song1 in playlist1.songs:
-        for song2 in playlist2.songs:
-            if song2.name == song1.name and song2.artist == song1.artist:
-                print(song1.name)
+    songs = find_common_songs(playlist1, playlist2)
+    for s in songs:
+        print(s.name)
