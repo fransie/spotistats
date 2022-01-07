@@ -6,14 +6,16 @@ This tool calculates some statistics for Spotify users. Currently supported anal
 
 ## Usage
 
-Clone into this repo:
+Clone into this repo and create a credentials file:
 
 ```
 git clone https://github.com/fransie/spotistats.git
+cd spotistats
+echo "# client id\n<YOUR_CLIENT_ID>\n# client secret\n<YOUR_CLIENT_SECRET>" > credentials
 ```
 
 You need a Spotify App to use this tool. Go to https://developer.spotify.com/dashboard/applications, create an app there
-and insert the client id and secret into the credentials file like this:
+and insert the obtained client id and secret of your app into the credentials file:
 
 ```
 # client id
