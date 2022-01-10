@@ -1,17 +1,11 @@
-from pprint import pprint
-
-import requests
-import json
-
 from markupsafe import escape
 from spotipy.oauth2 import SpotifyClientCredentials
 from flask import Flask, render_template, request
 
+import stats
 from stats import find_common_songs
 
 app = Flask(__name__)
-TOKEN = ""
-
 
 @app.route("/")
 def index():
@@ -35,5 +29,7 @@ def authorize():
     credentials = [lines[1].strip("\n"), lines[3].strip("\n")]
 
     client_credentials_manager = SpotifyClientCredentials(credentials[0], credentials[1])
-    global TOKEN
-    TOKEN = client_credentials_manager.get_access_token(False)
+    stats.TOKEN = client_credentials_manager.get_access_token(False)
+
+
+app.run()

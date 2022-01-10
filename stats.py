@@ -1,6 +1,7 @@
 import json
 import requests
-from app import TOKEN
+
+TOKEN = ""
 
 
 class Song:
