@@ -2,7 +2,27 @@ from pprint import pprint
 
 import requests
 import json
+
+from markupsafe import escape
 from spotipy.oauth2 import SpotifyClientCredentials
+from flask import Flask, render_template, request
+
+app = Flask(__name__)
+TOKEN = ""
+
+@app.route("/")
+def index():
+    return render_template('UI.html')
+
+
+@app.route("/common-songs", methods=['POST'])
+def get_common_songs():
+    u1 = escape(request.form["u1name"])
+    u2 = escape(request.form["u2name"])
+    p1 = escape(request.form["u1playlist"])
+    p2 = escape(request.form["u2playlist"])
+    songs = find_common_songs(u1, p1, u2, p2)
+    return render_template("songs.html", songs=songs)
 
 
 class Song:
@@ -87,14 +107,15 @@ class Playlist:
                 song = Song(song_json)
                 self.songs.append(song)
 
-
+@app.before_first_request
 def authorize():
     cred_file = open('credentials', 'r')
     lines = cred_file.readlines()
     credentials = [lines[1].strip("\n"), lines[3].strip("\n")]
 
     client_credentials_manager = SpotifyClientCredentials(credentials[0], credentials[1])
-    return client_credentials_manager.get_access_token(False)
+    global TOKEN
+    TOKEN = client_credentials_manager.get_access_token(False)
 
 
 def parse_response(response, action: str):
@@ -105,30 +126,14 @@ def parse_response(response, action: str):
         return json.loads(response.text)
 
 
-def find_common_songs(u1: User, p1, u2: User, p2):
-    playlist1 = u1.get_playlist_by_name(p1)
-    playlist2 = u2.get_playlist_by_name(p2)
+def find_common_songs(u1, p1, u2, p2):
+    user1 = User(u1)
+    user2 = User(u2)
+    playlist1 = user1.get_playlist_by_name(p1)
+    playlist2 = user2.get_playlist_by_name(p2)
     common_songs = []
     for song1 in playlist1.songs:
         for song2 in playlist2.songs:
             if song1 == song2:
                 common_songs.append(song1)
     return common_songs
-
-
-if __name__ == '__main__':
-    TOKEN = authorize()
-
-    user1 = User("USERNAME1")
-    playlist1_name = "PLAYLIST1"
-    playlist1 = Playlist(playlist1_name, user1)
-    playlist1.initialise_data()
-
-    user2 = User("USERNAME2")
-    playlist2_name = "PLAYLIST2"
-    playlist2 = Playlist(playlist2_name, user2)
-    playlist2.initialise_data()
-
-    songs = find_common_songs(user1, playlist1_name, user2, playlist2_name)
-    for s in songs:
-        print(s)

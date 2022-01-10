@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spotistats</title>
+</head>
+<body>
+    <h1>Spotistats</h1>
+    <h2>Find common songs in two playlists</h2>
+    <p>Enter the name of two playlists and the userid of their respective owner. The userid is not necessarily your display
+        name. You can find your username <a href="https://www.spotify.com/account/overview/">here</a>. This analysis
+        only works for public, non-collaborative Spotify playlists.</p>
+    <form action="/common-songs" method="post">
+        <label for="u1name">Name of user 1:</label><br>
+        <input type="text" id="u1name" name="u1name"><br>
+        <label for="u1playlist">Playlist of user 1:</label><br>
+        <input type="text" id="u1playlist" name="u1playlist"><br>
+
+        <label for="u2name">Name of user 2:</label><br>
+        <input type="text" id="u2name" name="u2name"><br>
+        <label for="u2playlist">Playlist of user 2:</label><br>
+        <input type="text" id="u2playlist" name="u2playlist"><br>
+
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
