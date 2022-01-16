@@ -7,6 +7,7 @@ from stats import find_common_songs
 
 app = Flask(__name__)
 
+
 @app.route("/")
 def index():
     return render_template('UI.html')
@@ -32,4 +33,5 @@ def authorize():
     stats.TOKEN = client_credentials_manager.get_access_token(False)
 
 
-app.run()
+if __name__ == "__main__":
+    app.run()
