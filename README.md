@@ -4,9 +4,9 @@ This tool calculates some statistics for Spotify users. Currently supported anal
 
 - Intersection of songs of two playlists
 
-## Usage
+## Setup
 
-Clone into this repo and create a credentials file:
+Clone this repo and create a `credentials` file:
 
 ```
 git clone https://github.com/fransie/spotistats.git
@@ -14,8 +14,8 @@ cd spotistats
 echo "# client id\n<YOUR_CLIENT_ID>\n# client secret\n<YOUR_CLIENT_SECRET>" > credentials
 ```
 
-You need a Spotify App to use this tool. Go to https://developer.spotify.com/dashboard/applications, create an app there
-and insert the obtained client id and secret of your app into the credentials file:
+You need a Spotify App to use this tool. Go to https://developer.spotify.com/dashboard/applications and create an app there.
+Insert the obtained client id and secret of your app into the `credentials` file:
 
 ```
 # client id
@@ -24,8 +24,11 @@ and insert the obtained client id and secret of your app into the credentials fi
 <YOUR_CLIENT_SECRET>
 ```
 
-Make sure to never publish your credentials. The .gitignore includes the credentials file.
+:warning: Make sure never to publish your credentials!
 
-Replace the username and playlist variables in the main function of ``main.py`` to compare two public playlists.
-The program prints the names of the songs that exist in both playlist to stdout.
+Next, in your Spotify App, click "Edit Settings", add the following string to "Redirect URIs":
+`http://localhost:8080` and save the settings.
 
+## Usage
+
+Go to the folder `spotitats`, run the command `flask run` and go to http://127.0.0.1:5000/ to use the app.
