@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Song found in playlists</title>
+</head>
+<body>
+    <h1>Here are the playlists your song was found in!</h1>
+    <h3>Your song was found in the following playlists:</h3>
+    <ul>
+    {% for playlist in playlists %}
+        <li>{{playlist.name}}</li>
+    {% endfor %}
+    </ul>
+    <a href="/">Go back</a>
+</body>
+</html>

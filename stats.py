@@ -6,6 +6,7 @@ class Song:
 
     def __init__(self, song_json):
         self.name = song_json["track"]["name"]
+        self.id = song_json["track"]["id"]
         self.artists = []
         self.get_artists(song_json)
 
@@ -48,6 +49,7 @@ class User:
     def get_playlist_by_name(self, name):
         playlist_list = [playlist for playlist in self.playlists if playlist.name == name]
         if len(playlist_list) == 0:
+            # TODO: error handling here
             print(f"No playlist with name {name} by user {self.userid} found.")
             exit()
         else:
@@ -77,7 +79,7 @@ class Playlist:
 
 
 class Stats:
-
+    # TODO: caching of users, playlists, songs
     def __init__(self, spoti_client: Spotify):
         self.client = spoti_client
 
@@ -96,3 +98,14 @@ class Stats:
                 if song1 == song2:
                     common_songs.append(song1)
         return common_songs
+
+    def find_song_in_playlists(self, user, song_id):
+        user = User(user, self.client)
+        hit_playlists = []
+        for playlist in user.playlists:
+            playlist.init_songs(self.client)
+            for song in playlist.songs:
+                if song.id == song_id:
+                    hit_playlists.append(playlist)
+                    break
+        return hit_playlists

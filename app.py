@@ -36,5 +36,14 @@ def get_common_songs():
     return render_template("songs.html", songs=songs)
 
 
+@app.route("/song_in_playlists", methods=['POST'])
+def find_song_in_playlists():
+    username = escape(request.form["uname"])
+    link = str(escape(request.form["link"]))
+    song_id = link[len("https://open.spotify.com/track/"):]
+    playlists = stats.find_song_in_playlists(username, song_id)
+    return render_template("song_in_playlists.html", playlists=playlists)
+
+
 if __name__ == "__main__":
     app.run()
