@@ -1,7 +1,4 @@
-import json
-import requests
-
-TOKEN = ""
+from spotipy import Spotify
 
 
 class Song:
@@ -30,25 +27,21 @@ class Song:
 
 
 class User:
-    """A Spotify user"""
+    """A Spotify user with their playlists"""
 
-    def __init__(self, userid):
-        self.userid = userid
-        self.playlists = self.get_playlists()
+    def __init__(self, username, client: Spotify):
+        self.userid = client.user(username)["id"]
+        self.playlists = self.get_playlists(client)
 
-    def get_playlists(self):
+    def get_playlists(self, client: Spotify):
         playlists = []
-        response = requests.get(f"https://api.spotify.com/v1/users/{self.userid}/playlists?limit=50",
-                                headers={"Authorization": f"Bearer {TOKEN}"})
-        playlists_json = parse_response(response, "get playlists of user")
-        num_of_playlists = playlists_json["total"]
-        for playlist in playlists_json["items"]:
+        response = client.user_playlists(user=self.userid, limit=50)
+        num_of_playlists = response["total"]
+        for playlist in response["items"]:
             playlists.append(Playlist(playlist))
         for i in range(50, num_of_playlists + 1, 50):
-            response = requests.get(f"https://api.spotify.com/v1/users/{self.userid}/playlists?limit={50}&offset={i}",
-                                    headers={"Authorization": f"Bearer {TOKEN}"})
-            playlists_json = parse_response(response, "get playlists")
-            for playlist in playlists_json["items"]:
+            response = client.user_playlists(user=self.userid, limit=50, offset=i)
+            for playlist in response["items"]:
                 playlists.append(Playlist(playlist))
         return playlists
 
@@ -59,7 +52,6 @@ class User:
             exit()
         else:
             playlist = playlist_list[0]
-            playlist.init_songs()
             return playlist
 
 
@@ -74,35 +66,33 @@ class Playlist:
         self.length = json_string["tracks"]["total"]
         self.songs = []
 
-    def init_songs(self):
+    def init_songs(self, client: Spotify):
         for i in range(0, self.length + 1, 100):
-            response = requests.get(
-                f"https://api.spotify.com/v1/playlists/{self.id}/tracks?limit=100&offset={i}",
-                headers={"Authorization": f"Bearer {TOKEN}"})
-            songs_json = parse_response(response, "get playlist")["items"]
+            response = client.playlist_items(playlist_id=self.id)
             # filter out null songs sent by Spotify API
-            songs = [x for x in songs_json if x["track"] is not None]
+            songs = [x for x in response["items"] if x["track"] is not None]
             for song_json in songs:
                 song = Song(song_json)
                 self.songs.append(song)
 
 
-def parse_response(response, action: str):
-    if response.status_code != 200:
-        print(f"Request for action '{action}' failed: {response.text}")
-        exit(-1)
-    else:
-        return json.loads(response.text)
+class Stats:
 
+    def __init__(self, spoti_client: Spotify):
+        self.client = spoti_client
 
-def find_common_songs(u1, p1, u2, p2):
-    user1 = User(u1)
-    user2 = User(u2)
-    playlist1 = user1.get_playlist_by_name(p1)
-    playlist2 = user2.get_playlist_by_name(p2)
-    common_songs = []
-    for song1 in playlist1.songs:
-        for song2 in playlist2.songs:
-            if song1 == song2:
-                common_songs.append(song1)
-    return common_songs
+    def find_common_songs(self, u1, p1, u2, p2):
+        user1 = User(u1, self.client)
+        user2 = User(u2, self.client)
+
+        playlist1 = user1.get_playlist_by_name(p1)
+        playlist2 = user2.get_playlist_by_name(p2)
+        playlist1.init_songs(self.client)
+        playlist2.init_songs(self.client)
+
+        common_songs = []
+        for song1 in playlist1.songs:
+            for song2 in playlist2.songs:
+                if song1 == song2:
+                    common_songs.append(song1)
+        return common_songs

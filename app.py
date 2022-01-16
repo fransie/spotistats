@@ -1,11 +1,24 @@
+import spotipy
 from markupsafe import escape
-from spotipy.oauth2 import SpotifyClientCredentials
+from spotipy.oauth2 import SpotifyOAuth
 from flask import Flask, render_template, request
 
 import stats
-from stats import find_common_songs
 
 app = Flask(__name__)
+
+
+def authorize():
+    cred_file = open('credentials', 'r')
+    lines = cred_file.readlines()
+    [cid, secret] = [lines[1].strip("\n"), lines[3].strip("\n")]
+    scope = "playlist-read-private playlist-read-collaborative"
+    redirect = "http://localhost:8080"
+    return spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=cid, client_secret=secret,
+                                                     redirect_uri=redirect, scope=scope))
+
+
+stats = stats.Stats(authorize())
 
 
 @app.route("/")
@@ -19,18 +32,8 @@ def get_common_songs():
     u2 = escape(request.form["u2name"])
     p1 = escape(request.form["u1playlist"])
     p2 = escape(request.form["u2playlist"])
-    songs = find_common_songs(u1, p1, u2, p2)
+    songs = stats.find_common_songs(u1, p1, u2, p2)
     return render_template("songs.html", songs=songs)
-
-
-@app.before_first_request
-def authorize():
-    cred_file = open('credentials', 'r')
-    lines = cred_file.readlines()
-    credentials = [lines[1].strip("\n"), lines[3].strip("\n")]
-
-    client_credentials_manager = SpotifyClientCredentials(credentials[0], credentials[1])
-    stats.TOKEN = client_credentials_manager.get_access_token(False)
 
 
 if __name__ == "__main__":
