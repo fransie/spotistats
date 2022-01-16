@@ -3,6 +3,7 @@
 This tool calculates some statistics for Spotify users. Currently supported analyses:
 
 - Intersection of songs of two playlists
+- Find all playlists of a user that containt a certain song
 
 ## Setup
 
@@ -32,3 +33,4 @@ Next, in your Spotify App, click "Edit Settings", add the following string to "R
 ## Usage
 
 Go to the folder `spotitats`, run the command `flask run` and go to http://127.0.0.1:5000/ to use the app.
+The analyses are pretty slow right now, so please wait until the browser finishes loading.
